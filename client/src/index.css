@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.glass-container {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.glass-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: inherit;
+  filter: blur(10px); /* Adjust the blur value for the frosted glass effect */
+  z-index: -1;
+}
+
+.glass-container::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(
+    255,
+    255,
+    255,
+    0.2
+  ); /* Adjust the color and opacity for the frosted effect */
+  z-index: -2;
+}
+
+/* index.css atau di file terpisah */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 1.4s;
+}
+
+.fade-out {
+  animation: fadeOut 0.5s ease-in-out;
+  animation-fill-mode: forwards;
+}

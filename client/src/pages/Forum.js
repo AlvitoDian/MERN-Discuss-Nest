@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import PostCard from "../components/PostCard";
 import Pagination from "../components/Pagination";
+import UserOnlineCard from "../components/UserOnlineCard";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { formatDistanceToNow } from "date-fns";
@@ -14,6 +15,7 @@ export default function Forum() {
   const [category, setCategory] = useState("");
   const [body, setBody] = useState("");
   const [errorMessages, setErrorMessages] = useState({});
+  const [onlineUsers, setOnlineUsers] = useState([]);
 
   //? Pagination Section
   const [currentPage, setCurrentPage] = useState(1);
@@ -25,12 +27,16 @@ export default function Forum() {
   //? Pagination End
 
   const { user } = useAuthContext();
+  const apiUrl = process.env.REACT_APP_DOMAIN_API;
 
+  //? Get All Posts
   const getPosts = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/posts", {
+      const response = await axios.get(`${apiUrl}/posts`, {
         withCredentials: true,
       });
+
+      /* console.log("Post", response); */
 
       // Add userName property to each post
       const updatedPosts = response.data.map((post) => ({
@@ -53,8 +59,37 @@ export default function Forum() {
     }
   };
 
+  //? Get Online Users
+  const getOnlineUsers = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/online-users`, {
+        withCredentials: true,
+      });
+
+      /* console.log("User", response); */
+
+      const updatedUsers = response.data.map((onlineUsers) => ({
+        ...onlineUsers,
+      }));
+
+      setOnlineUsers(updatedUsers);
+      /*  setPosts(response.data); */
+    } catch (error) {
+      if (error.response && error.response.status === 401) {
+        // Handle 401 Unauthorized error
+        console.error("Unauthorized access. Redirect or show login form.");
+        // For example, you might redirect to a login page or show a login form
+        return; // Stop execution and return from the function
+      } else {
+        // Handle other errors
+        console.error("Error fetching user online:", error);
+      }
+    }
+  };
+
   useEffect(() => {
     getPosts();
+    getOnlineUsers();
   }, []);
 
   const addPost = async (e) => {
@@ -64,7 +99,7 @@ export default function Forum() {
     try {
       const currentDate = new Date();
       const response = await axios.post(
-        "http://localhost:5000/add-post",
+        `${apiUrl}/add-post`,
         {
           userId: user._id,
           title,
@@ -213,107 +248,14 @@ export default function Forum() {
               />
             ))}
           </div>
-          <div>
-            <p className="mb-3 text-gray-200">Current User's Online</p>
-
-            <ul className="max-w-md ">
-              <li className="pb-3 sm:pb-4">
-                <div className="flex items-center space-x-4 rtl:space-x-reverse">
-                  <div className="flex-shrink-0">
-                    <img
-                      className="w-8 h-8 rounded-full"
-                      src="https://www.w3schools.com/w3css/img_avatar2.png"
-                      alt="Neil image"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate text-gray-200">
-                      Neil Sims
-                    </p>
-                    <p className="text-sm text-gray-500 truncate dark:text-gray-400">
-                      email@flowbite.com
-                    </p>
-                  </div>
-                </div>
-              </li>
-              <li className="pb-3 sm:pb-4">
-                <div className="flex items-center space-x-4 rtl:space-x-reverse">
-                  <div className="flex-shrink-0">
-                    <img
-                      className="w-8 h-8 rounded-full"
-                      src="https://www.w3schools.com/w3css/img_avatar2.png"
-                      alt="Neil image"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate text-gray-200">
-                      Neil Sims
-                    </p>
-                    <p className="text-sm text-gray-500 truncate dark:text-gray-400">
-                      email@flowbite.com
-                    </p>
-                  </div>
-                </div>
-              </li>
-              <li className="pb-3 sm:pb-4">
-                <div className="flex items-center space-x-4 rtl:space-x-reverse">
-                  <div className="flex-shrink-0">
-                    <img
-                      className="w-8 h-8 rounded-full"
-                      src="https://www.w3schools.com/w3css/img_avatar2.png"
-                      alt="Neil image"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate text-gray-200">
-                      Neil Sims
-                    </p>
-                    <p className="text-sm text-gray-500 truncate dark:text-gray-400">
-                      email@flowbite.com
-                    </p>
-                  </div>
-                </div>
-              </li>
-              <li className="pb-3 sm:pb-4">
-                <div className="flex items-center space-x-4 rtl:space-x-reverse">
-                  <div className="flex-shrink-0">
-                    <img
-                      className="w-8 h-8 rounded-full"
-                      src="https://www.w3schools.com/w3css/img_avatar2.png"
-                      alt="Neil image"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate text-gray-200">
-                      Neil Sims
-                    </p>
-                    <p className="text-sm text-gray-500 truncate dark:text-gray-400">
-                      email@flowbite.com
-                    </p>
-                  </div>
-                </div>
-              </li>
-              <li className="pb-3 sm:pb-4">
-                <div className="flex items-center space-x-4 rtl:space-x-reverse">
-                  <div className="flex-shrink-0">
-                    <img
-                      className="w-8 h-8 rounded-full"
-                      src="https://www.w3schools.com/w3css/img_avatar2.png"
-                      alt="Neil image"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate text-gray-200">
-                      Neil Sims
-                    </p>
-                    <p className="text-sm text-gray-500 truncate dark:text-gray-400">
-                      email@flowbite.com
-                    </p>
-                  </div>
-                </div>
-              </li>
-            </ul>
-          </div>
+          {onlineUsers.map((user, index) => (
+            <UserOnlineCard
+              key={index}
+              name={user.name}
+              email={user.email}
+              userId={user._id}
+            />
+          ))}
         </div>
 
         <Pagination

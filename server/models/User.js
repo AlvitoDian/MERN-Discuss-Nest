@@ -19,6 +19,10 @@ const userSchema = new Schema({
     type: String,
     required: true,
   },
+  status: {
+    type: String,
+    default: "offline",
+  },
 });
 
 //? Static Signup Check Email Method

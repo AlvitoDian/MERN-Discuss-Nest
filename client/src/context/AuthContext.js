@@ -173,6 +173,7 @@ export const authReducer = (state, action) => {
 export const AuthContextProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, { user: null });
   const [loading, setLoading] = useState(true);
+  const apiUrl = process.env.REACT_APP_DOMAIN_API;
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -205,11 +206,7 @@ export const AuthContextProvider = ({ children }) => {
   const renewAccessToken = async () => {
     // Set loading to true before making the Axios request
     try {
-      await axios.post(
-        "http://localhost:5000/renew-token",
-        {},
-        { withCredentials: true }
-      );
+      await axios.post(`${apiUrl}/renew-token`, {}, { withCredentials: true });
     } catch (error) {
       console.error("Error renewing access token:", error);
       // Handle the error or redirect to the login page

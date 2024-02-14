@@ -2,37 +2,11 @@ require("dotenv").config();
 const { access } = require("fs");
 const { UserModel } = require("../models/User.js");
 const jwt = require("jsonwebtoken");
-
-//? Create Access Token
-const createAccessToken = (user) => {
-  return jwt.sign(
-    { _id: user._id, name: user.name },
-    process.env.ACCESS_TOKEN,
-    {
-      expiresIn: "1m",
-    }
-  );
-};
-
-//? Create Refresh Token
-const createRefreshToken = (user) => {
-  return jwt.sign(
-    { _id: user._id, name: user.name },
-    process.env.REFRESH_TOKEN,
-    { expiresIn: "7d" }
-  );
-};
-
-//? Create User Status Token
-const createStatusToken = (user) => {
-  return jwt.sign({ _id: user._id }, process.env.REFRESH_TOKEN, {
-    expiresIn: "7d",
-  });
-};
-/* const createToken = (user) => {
-  const { _id, email } = user;
-  return jwt.sign({ _id, email }, process.env.SECRET, { expiresIn: "2d" });
-}; */
+const {
+  createAccessToken,
+  createRefreshToken,
+  createStatusToken,
+} = require("../utils/tokenGenerator");
 
 //? Login Method
 const loginUser = async (req, res) => {
@@ -41,16 +15,14 @@ const loginUser = async (req, res) => {
   try {
     const user = await UserModel.login(email, password);
 
+    //? Set Online Status
+    await UserModel.findByIdAndUpdate(user._id, { status: "online" });
+
     //? Create Token
     const accessToken = createAccessToken(user);
     const refreshToken = createRefreshToken(user);
     const statusToken = createStatusToken(user);
-    /* const refreshToken = createRefreshToken(user._id); */
-    // const token = createToken(user);
 
-    /* res.status(200).json({ email, token }); */
-    //? Set HTTP-only cookie with the token
-    /* res.cookie("authToken", token, { httpOnly: true }); */
     res.cookie("refreshToken", refreshToken, {
       maxAge: 7 * 24 * 60 * 60 * 1000,
       httpOnly: true,
@@ -58,7 +30,6 @@ const loginUser = async (req, res) => {
 
     res.cookie("accessToken", accessToken, {
       maxAge: 1 * 60 * 1000,
-      /* httpOnly: true, */
     });
 
     res.cookie("statusToken", statusToken, {
@@ -66,9 +37,8 @@ const loginUser = async (req, res) => {
     });
 
     const name = user.name;
-    res.status(200).json({ name });
-
-    /* res.json({ accessToken }); */
+    const _id = user._id;
+    res.status(200).json({ _id, name });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -81,9 +51,12 @@ const signupUser = async (req, res) => {
   try {
     const user = await UserModel.signup(name, email, password);
 
+    await UserModel.findByIdAndUpdate(user._id, { status: "online" });
+
     //? Create Token
     const accessToken = createAccessToken(user);
     const refreshToken = createRefreshToken(user);
+    const statusToken = createStatusToken(user);
 
     /* res.status(200).json({ email, token }); */
     res.cookie("accessToken", accessToken, {
@@ -94,6 +67,9 @@ const signupUser = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
       httpOnly: true,
     });
+    res.cookie("statusToken", statusToken, {
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
 
     res.status(200).json({ name });
   } catch (error) {
@@ -103,12 +79,19 @@ const signupUser = async (req, res) => {
 
 //? Logout Method
 const logoutUser = async (req, res) => {
-  res.clearCookie("accessToken");
-  res.clearCookie("refreshToken");
-  res.clearCookie("statusToken");
+  const { userId } = req.body;
 
-  // Send a response indicating successful logout
-  res.status(200).json({ success: true, message: "Logout successful" });
+  try {
+    await UserModel.findByIdAndUpdate(userId, { status: "offline" });
+
+    res.clearCookie("refreshToken");
+    res.clearCookie("accessToken");
+    res.clearCookie("statusToken");
+
+    res.status(200).json({ message: "Logout successful" });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 };
 
 module.exports = { signupUser, loginUser, logoutUser };

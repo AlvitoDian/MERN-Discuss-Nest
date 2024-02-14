@@ -16,10 +16,11 @@ export default function SinglePost() {
   const [date, setDate] = useState("");
   const navigate = useNavigate();
   const { slug } = useParams();
+  const apiUrl = process.env.REACT_APP_DOMAIN_API;
 
   const getPostBySlug = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/post/${slug}`);
+      const response = await axios.get(`${apiUrl}/post/${slug}`);
       console.log(response);
       setTitle(response.data.title);
       setCategory(response.data.category);

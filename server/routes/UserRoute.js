@@ -5,12 +5,14 @@ const {
   logoutUser,
 } = require("../controllers/authController");
 
-/* const renewAccessToken = require("../middleware/refreshToken"); */
+const {
+  getOnlineUsers,
+  followUser,
+  checkFollow,
+  countFollower,
+} = require("../controllers/userController");
 
 const router = express.Router();
-
-//? Refresh Token Route
-/* router.get("/refresh", renewAccessToken); */
 
 //? Login Route
 router.post("/login", loginUser);
@@ -20,5 +22,17 @@ router.post("/signup", signupUser);
 
 //? Logout Route
 router.post("/logout", logoutUser);
+
+//? Get Online User Route
+router.get("/online-users", getOnlineUsers);
+
+//? Following User
+router.post("/follow/:userId", followUser);
+
+//? Check is Following User
+router.post("/checkFollow/:userId", checkFollow);
+
+//? Count Follower
+router.get("/countFollower/:userId", countFollower);
 
 module.exports = router;

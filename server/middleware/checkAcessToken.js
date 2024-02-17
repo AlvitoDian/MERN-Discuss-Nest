@@ -6,10 +6,10 @@ const axios = require("axios");
 
 const checkAccessToken = async (req, res, next) => {
   const accessToken = req.cookies.accessToken;
-  console.log("Access Token : ", accessToken);
+  /*   console.log("Access Token : ", accessToken); */
 
   const refreshToken = req.cookies.refreshToken;
-  console.log("Refresh Token : ", refreshToken);
+  /*   console.log("Refresh Token : ", refreshToken); */
 
   if (!refreshToken) {
     return res.status(401).send({ auth: false, message: "No Auth" });
@@ -29,6 +29,8 @@ const checkAccessToken = async (req, res, next) => {
       } else {
         req._id = decoded._id;
         req.name = decoded.name;
+        req.slug = decoded.slug;
+        req.email = decoded.email;
         next();
       }
     });
@@ -98,25 +100,27 @@ const checkAccessToken = async (req, res, next) => {
 
 const renewAccessTokenFunction = async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
-  console.log("Refresh Token 2:", refreshToken);
+  /*  console.log("Refresh Token 2:", refreshToken); */
 
   if (refreshToken) {
     try {
       const decoded = await jwt.verify(refreshToken, process.env.REFRESH_TOKEN);
       const accessToken = jwt.sign(
-        { _id: decoded._id, name: decoded.name },
+        {
+          _id: decoded._id,
+          name: decoded.name,
+          slug: decoded.slug,
+          email: decoded.email,
+        },
         process.env.ACCESS_TOKEN,
         { expiresIn: "1m" }
       );
 
       res.cookie("accessToken", accessToken, { maxAge: 60000 });
-      console.log(
+      /*   console.log(
         "New Access Token set in the cookie via FUNCTION:",
         accessToken
-      );
-
-      // If you want to pass the new access token to the next middleware, uncomment the following line
-      // req.cookies.accessToken = accessToken;
+      ); */
     } catch (err) {
       console.error("Error renewing access token:", err);
       return res.json({ valid: false, message: "Invalid Token" });
@@ -126,25 +130,27 @@ const renewAccessTokenFunction = async (req, res) => {
 
 const renewAccessToken = async (req, res, next) => {
   const refreshToken = req.cookies.refreshToken;
-  console.log("Refresh Token 2:", refreshToken);
+  /*   console.log("Refresh Token 2:", refreshToken); */
 
   if (refreshToken) {
     try {
       const decoded = await jwt.verify(refreshToken, process.env.REFRESH_TOKEN);
       const accessToken = jwt.sign(
-        { _id: decoded._id, name: decoded.name },
+        {
+          _id: decoded._id,
+          name: decoded.name,
+          slug: decoded.slug,
+          email: decoded.email,
+        },
         process.env.ACCESS_TOKEN,
         { expiresIn: "1m" }
       );
 
       res.cookie("accessToken", accessToken, { maxAge: 60000 });
-      console.log(
+      /*    console.log(
         "New Access Token set in the cookie via FUNCTION:",
         accessToken
-      );
-
-      // If you want to pass the new access token to the next middleware, uncomment the following line
-      // req.cookies.accessToken = accessToken;
+      ); */
     } catch (err) {
       console.error("Error renewing access token:", err);
       return res.json({ valid: false, message: "Invalid Token" });

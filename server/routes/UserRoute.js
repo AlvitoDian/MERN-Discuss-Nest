@@ -4,13 +4,32 @@ const {
   loginUser,
   logoutUser,
 } = require("../controllers/authController");
-
+const { checkAccessToken } = require("../middleware/checkAcessToken");
+const multer = require("multer");
+const path = require("path");
 const {
   getOnlineUsers,
   followUser,
   checkFollow,
   countFollower,
+  updateUser,
 } = require("../controllers/userController");
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "public/images");
+  },
+  filename: (req, file, cb) => {
+    cb(
+      null,
+      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
+    );
+  },
+});
+
+const upload = multer({
+  storage: storage,
+});
 
 const router = express.Router();
 
@@ -26,13 +45,21 @@ router.post("/logout", logoutUser);
 //? Get Online User Route
 router.get("/online-users", getOnlineUsers);
 
+//? Update User
+router.put(
+  "/update/:userId",
+  checkAccessToken,
+  upload.single("profileImage"),
+  updateUser
+);
+
 //? Following User
-router.post("/follow/:userId", followUser);
+router.post("/follow/:userSlug", followUser);
 
 //? Check is Following User
-router.post("/checkFollow/:userId", checkFollow);
+router.post("/checkFollow/:userSlug", checkFollow);
 
 //? Count Follower
-router.get("/countFollower/:userId", countFollower);
+router.get("/countFollower/:userSlug", countFollower);
 
 module.exports = router;

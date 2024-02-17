@@ -17,7 +17,6 @@ export default function Login() {
     e.preventDefault();
     try {
       await login(email, password);
-      navigate("/");
     } catch (error) {
       console.error("Terjadi kesalahan saat login:", error);
     }
@@ -38,7 +37,7 @@ export default function Login() {
                 id="email"
                 name="email"
                 value={email}
-                className="w-full border-gray-300 rounded-md p-2 bg-zinc-800 bg-opacity-90 shadow-lg text-gray-200"
+                className="w-full border-gray-300 rounded-md p-2 bg-zinc-800 bg-opacity-90 shadow-lg text-gray-200 focus:bg-zinc-800"
                 placeholder="Enter your email"
                 onChange={(e) => setEmail(e.target.value)}
               />

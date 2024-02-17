@@ -7,6 +7,7 @@ const {
   createRefreshToken,
   createStatusToken,
 } = require("../utils/tokenGenerator");
+const slugify = require("slugify");
 
 //? Login Method
 const loginUser = async (req, res) => {
@@ -61,7 +62,6 @@ const signupUser = async (req, res) => {
     /* res.status(200).json({ email, token }); */
     res.cookie("accessToken", accessToken, {
       maxAge: 1 * 60 * 1000,
-      /* httpOnly: true, */
     });
     res.cookie("refreshToken", refreshToken, {
       maxAge: 7 * 24 * 60 * 60 * 1000,

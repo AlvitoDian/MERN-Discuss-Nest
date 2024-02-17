@@ -13,6 +13,8 @@ const app = express();
 //? Cokkie Parser
 app.use(cookieParser());
 
+app.use(express.static("public"));
+
 app.get("/extract-cookie", async (req, res) => {
   const cookie = req.cookies.refreshToken;
 

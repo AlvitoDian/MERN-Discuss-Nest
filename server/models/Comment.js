@@ -1,27 +1,18 @@
 const mongoose = require("mongoose");
 const { UserModel } = require("../models/User.js");
+const { PostModel } = require("../models/Post.js");
 
 const Schema = mongoose.Schema;
 
 //? Schema Factory
-const postSchema = new Schema({
+const commentSchema = new Schema({
   userId: { type: Schema.Types.ObjectId, ref: "Users" },
-  title: {
+  postId: { type: Schema.Types.ObjectId, ref: "Posts" },
+  /* slug: {
     type: String,
     required: true,
-  },
-  slug: {
-    type: String,
-    required: true,
-  },
-  category: {
-    type: String,
-    required: true,
-  },
-  postImage: {
-    type: String,
-  },
-  body: {
+  }, */
+  content: {
     type: String,
     required: true,
   },
@@ -30,9 +21,9 @@ const postSchema = new Schema({
 
 //? Model Factory
 
-const PostModel = mongoose.model("Posts", postSchema);
+const CommentModel = mongoose.model("Comments", commentSchema);
 
 //? Export Factory
 module.exports = {
-  PostModel,
+  CommentModel,
 };

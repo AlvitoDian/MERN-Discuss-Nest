@@ -2,30 +2,88 @@ const { UserModel } = require("../models/User.js");
 const { PostModel } = require("../models/Post.js");
 const { FollowerModel } = require("../models/Follower.js");
 const { FollowingModel } = require("../models/Following.js");
+const {
+  createAccessToken,
+  createRefreshToken,
+  createStatusToken,
+} = require("../utils/tokenGenerator");
+const fs = require("fs");
+const path = require("path");
 
 //? Function Get User By Id
-const getUserById = async (req, res) => {
+const getUserBySlug = async (req, res) => {
   try {
-    const userId = req.params.id;
+    const userSlug = req.params.slug;
 
-    const [user, postCount] = await Promise.all([
-      UserModel.findById(userId),
-      PostModel.countDocuments({ userId: userId }),
-    ]);
+    const user = await UserModel.findOne({ slug: userSlug });
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
+    const postCount = await PostModel.countDocuments({ userId: user._id });
+
     const userData = {
       name: user.name,
       email: user.email,
       postCount: postCount,
+      profileImage: user.profileImage,
     };
 
     res.json(userData);
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+//? Function Update User By Id
+const updateUser = async (req, res) => {
+  const { userId } = req.params;
+  const { name, email } = req.body;
+  console.log(req.file, name, email);
+
+  try {
+    const existingUser = await UserModel.findById(userId);
+
+    if (!existingUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const oldProfileImage = existingUser.profileImage;
+
+    existingUser.name = name || existingUser.name;
+    existingUser.email = email || existingUser.email;
+
+    if (req.file) {
+      if (oldProfileImage) {
+        const oldImagePath = `public/images/${oldProfileImage}`;
+
+        fs.unlinkSync(oldImagePath);
+      }
+      existingUser.profileImage = req.file.filename;
+    }
+
+    const updatedUser = await existingUser.save();
+
+    const updatedAccessToken = createAccessToken(updatedUser);
+    const updatedRefreshToken = createRefreshToken(updatedUser);
+    const updatedStatusToken = createStatusToken(updatedUser);
+
+    res.cookie("accessToken", updatedAccessToken, {
+      maxAge: 1 * 60 * 1000,
+    });
+    res.cookie("refreshToken", updatedRefreshToken, {
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      httpOnly: true,
+    });
+    res.cookie("statusToken", updatedStatusToken, {
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
@@ -38,6 +96,8 @@ const getOnlineUsers = async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      slug: user.slug,
+      profileImage: user.profileImage,
     }));
 
     res.status(200).json(onlineUsersData);
@@ -48,8 +108,11 @@ const getOnlineUsers = async (req, res) => {
 
 //? Function Following User
 async function followUser(req, res) {
-  const { userId } = req.params; //? Followed User
+  const { userSlug } = req.params; //? Followed User
   const followingId = req.body.userId; //? Following User
+
+  //? Find userId by params Slug
+  const userId = await UserModel.findOne({ slug: userSlug });
 
   try {
     const isFollowing = await FollowerModel.exists({
@@ -85,15 +148,18 @@ async function followUser(req, res) {
 
 //? Function Check Is Following User
 const checkFollow = async (req, res) => {
-  const { userId } = req.params; //? Followed User
+  const { userSlug } = req.params; //? Followed User
   const followingId = req.body.userId; //? Following User
+
+  //? Find userId by params Slug
+  const userId = await UserModel.findOne({ slug: userSlug });
 
   try {
     const isFollowing = await FollowerModel.exists({
       userId,
       followerId: followingId,
     });
-    console.log(isFollowing);
+
     res.json({ isFollowing });
   } catch (error) {
     console.error("Error checking follow:", error);
@@ -103,10 +169,14 @@ const checkFollow = async (req, res) => {
 
 //? Function Count Follower -> Followed
 const countFollower = async (req, res) => {
-  const { userId } = req.params; //? Followed User
+  const { userSlug } = req.params; //? Followed User
 
+  //? Find userId by params Slug
+  const userId = await UserModel.findOne({ slug: userSlug });
   try {
-    const followerCount = await FollowerModel.countDocuments({ userId });
+    const followerCount = await FollowerModel.countDocuments({
+      userId,
+    });
 
     res.json({ success: true, followerCount });
   } catch (error) {
@@ -118,9 +188,10 @@ const countFollower = async (req, res) => {
 };
 
 module.exports = {
-  getUserById,
+  getUserBySlug,
   getOnlineUsers,
   followUser,
   checkFollow,
   countFollower,
+  updateUser,
 };

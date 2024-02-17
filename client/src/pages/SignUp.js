@@ -1,11 +1,9 @@
 import React from "react";
 import { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { useSignUp } from "../hooks/useSignUp";
 
 export default function SingUp() {
-  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,8 +13,12 @@ export default function SingUp() {
   //? Handle Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await signup(name, email, password);
-    navigate("/");
+
+    try {
+      await signup(name, email, password);
+    } catch (error) {
+      console.error("Signup Error:", error);
+    }
   };
 
   return (

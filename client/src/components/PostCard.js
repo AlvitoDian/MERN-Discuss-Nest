@@ -12,6 +12,8 @@ export default function PostCard({
   content,
   date,
   authorId,
+  authorSlug,
+  postImage,
 }) {
   // Function to limit the text to a certain number of words
   const limitText = (text, limit) => {
@@ -26,10 +28,11 @@ export default function PostCard({
   };
 
   const limitedContent = limitText(content, 30);
+  const apiUrl = process.env.REACT_APP_DOMAIN_API;
 
   return (
     <div
-      className="max-w-7xl p-6 bg-zinc-700 rounded-lg mb-5 overflow-hidden"
+      className="max-w-7xl p-6 bg-zinc-700 rounded-lg mb-5 overflow-hidden fade-in"
       key={postId}
     >
       <a href="#">
@@ -39,7 +42,7 @@ export default function PostCard({
       </a>
 
       <div className="flex items-center mb-3">
-        <Link to={`user/${authorId}`}>
+        <Link to={`user/${authorSlug}`}>
           <p className="font-light text-gray-400 font-medium">
             <FontAwesomeIcon icon={faUser} className="pr-2" size="sm" />
             {author}
@@ -49,6 +52,13 @@ export default function PostCard({
           <FontAwesomeIcon icon={faClock} className="pr-2" size="sm" />
           {date}
         </p>
+      </div>
+      <div className="flex items-center justify-center">
+        <img
+          className="h-48 w-screen rounded-lg object-cover object-fit:cover"
+          src={`${apiUrl}/images/${postImage}`}
+          alt="image description"
+        />
       </div>
       <p className="mb-3 font-normal text-gray-200 overflow-hidden">
         {limitedContent}

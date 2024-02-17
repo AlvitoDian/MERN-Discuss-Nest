@@ -109,13 +109,13 @@ export default function Navbar() {
                   {isDropdownOpen && (
                     <div
                       id="dropdownHover"
-                      className="z-10 absolute bg-white bg-opacity-50 backdrop-blur-sm rounded-lg drop-shadow-2xl w-44"
+                      className="z-10 absolute bg-white bg-opacity-30 backdrop-blur-sm rounded-lg drop-shadow-2xl w-44"
                       onMouseEnter={handleMouseEnter}
                       onMouseLeave={handleMouseLeave}
                     >
-                      <ul className="py-2 text-sm text-gray-200 hover:text-grey-400">
+                      <ul className="py-2 text-sm text-gray-200 hover:text-grey-400 ">
                         <li>
-                          <Link to={`/forum/user/${user._id}`}>
+                          <Link to={`/update-user`}>
                             <div className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-blue-200 dark:hover:text-dark transition duration-300 transform hover:scale-100">
                               Update Profile
                             </div>
@@ -130,10 +130,6 @@ export default function Navbar() {
                             onClick={handleClickLogout}
                             className="block px-4 py-2 relative flex items-center cursor-pointer transition duration-300 hover:bg-blue-200 transform hover:scale-100 "
                           >
-                            {/* <div
-                              id="bg"
-                              className="absolute inset-0 dark:hover:bg-blue-200 hover:blur-sm"
-                            ></div> */}
                             <div id="text" className="flex items-center">
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"

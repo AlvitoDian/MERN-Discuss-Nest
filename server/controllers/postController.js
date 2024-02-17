@@ -5,11 +5,9 @@ const slugify = require("slugify");
 //? Function Show All Data Post
 const getAllPost = async (req, res) => {
   try {
-    // Menggunakan metode find untuk mendapatkan semua post, dan menyortir berdasarkan tanggal terbaru
-    /* const posts = await PostModel.find().sort({ date: -1 }); */
     const posts = await PostModel.find()
       .sort({ date: -1 })
-      .populate("userId", "name");
+      .populate("userId", "name slug");
 
     res.json(posts);
   } catch (error) {
@@ -59,7 +57,7 @@ const addPost = async (req, res) => {
   // Generate slug from title
   let slug = slugify(title, {
     lower: true,
-    remove: /[*+~.()'"!:@]/g,
+    remove: /[*+~.()'"?!:@]/g,
   });
 
   // Check for existing posts with the same slug
@@ -87,6 +85,10 @@ const addPost = async (req, res) => {
     body,
   });
 
+  if (req.file) {
+    post.postImage = req.file.filename;
+  }
+
   try {
     const addedPost = await post.save();
     res.status(201).json(addedPost);
@@ -100,14 +102,12 @@ const getPostBySlug = async (req, res) => {
   try {
     const post = await PostModel.findOne({ slug: req.params.slug }).populate(
       "userId",
-      "name"
+      "name slug"
     );
 
     if (!post) {
       return res.status(404).json({ message: "Post not found" });
     }
-
-    console.log(post);
 
     res.json(post);
   } catch (error) {

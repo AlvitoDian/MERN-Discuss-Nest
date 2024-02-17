@@ -1,12 +1,17 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const validator = require("validator");
+const slugify = require("slugify");
 
 const Schema = mongoose.Schema;
 
 //? Schema Factory
 const userSchema = new Schema({
   name: {
+    type: String,
+    required: true,
+  },
+  slug: {
     type: String,
     required: true,
   },
@@ -18,6 +23,9 @@ const userSchema = new Schema({
   password: {
     type: String,
     required: true,
+  },
+  profileImage: {
+    type: String,
   },
   status: {
     type: String,
@@ -46,10 +54,27 @@ userSchema.statics.signup = async function (name, email, password) {
     throw Error("Email already in use");
   }
 
+  let slug = slugify(name, { lower: true });
+
+  const existingUserSlug = await this.findOne({ slug });
+
+  if (existingUserSlug) {
+    let counter = 1;
+    let newSlug = slug;
+
+    // Keep appending a counter until a unique slug is found
+    while (await this.findOne({ slug: newSlug })) {
+      newSlug = `${slug}-${counter}`;
+      counter++;
+    }
+
+    slug = newSlug;
+  }
+
   const salt = await bcrypt.genSalt(10);
   const hash = await bcrypt.hash(password, salt);
 
-  const user = await this.create({ name, email, password: hash });
+  const user = await this.create({ name, slug, email, password: hash });
 
   return user;
 };

@@ -58,7 +58,7 @@ export default function UpdateUser() {
 
     try {
       const response = await axios.put(
-        `${apiUrl}/update/${user._id}`,
+        `${apiUrl}/update-user/${user._id}`,
         formData,
         {
           withCredentials: true,
@@ -95,14 +95,14 @@ export default function UpdateUser() {
             >
               {previewImage && (
                 <img
-                  className="w-24 h-24 mb-3 rounded-full shadow-lg opacity-60"
+                  className="w-24 h-24 mb-3 rounded-full shadow-lg opacity-60 hover:opacity-90 transition duration-300 ease-in-out"
                   src={previewImage}
                   alt="Profile preview"
                 />
               )}
               {!previewImage && (
                 <img
-                  className="w-24 h-24 mb-3 rounded-full shadow-lg opacity-60"
+                  className="w-24 h-24 mb-3 rounded-full shadow-lg opacity-60 hover:opacity-90 transition duration-300 ease-in-out"
                   src={profileImage}
                   alt="Profile image"
                 />

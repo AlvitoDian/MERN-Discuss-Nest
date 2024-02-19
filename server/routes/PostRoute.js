@@ -1,8 +1,11 @@
 const express = require("express");
 const {
   getAllPost,
+  getAllPostByUser,
   addPost,
   getPostBySlug,
+  updatePost,
+  deletePost,
 } = require("../controllers/postController");
 const {
   getAllComment,
@@ -45,9 +48,19 @@ router.get("/post/:slug", getPostBySlug);
 //? GET a sing user profile
 router.get("/user/:slug", getUserBySlug);
 
+//? GET all post with by current user
+router.get("/posts-user/:userSlug", getAllPostByUser);
+
 //? UPDATE a Post
+router.put(
+  "/update-post/:userId",
+  checkAccessToken,
+  upload.single("postImage"),
+  updatePost
+);
 
 //? DELETE a Post
+router.delete("/delete-post/:postId", checkAccessToken, deletePost);
 
 //? Post a new Comment
 router.post("/add-comment", checkAccessToken, addComment);

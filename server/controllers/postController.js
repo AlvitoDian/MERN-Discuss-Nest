@@ -1,6 +1,8 @@
 const { body, validationResult } = require("express-validator");
 const { PostModel } = require("../models/Post.js");
+const { UserModel } = require("../models/User.js");
 const slugify = require("slugify");
+const fs = require("fs");
 
 //? Function Show All Data Post
 const getAllPost = async (req, res) => {
@@ -12,6 +14,27 @@ const getAllPost = async (req, res) => {
     res.json(posts);
   } catch (error) {
     /* res.json({ message: error.message }); */
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+//? Function Show All Data Post By User
+const getAllPostByUser = async (req, res) => {
+  const { userSlug } = req.params;
+
+  try {
+    const user = await UserModel.findOne({ slug: userSlug });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const posts = await PostModel.find({ userId: user._id })
+      .sort({ date: -1 })
+      .populate("userId", "name slug");
+    res.json(posts);
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -115,8 +138,81 @@ const getPostBySlug = async (req, res) => {
   }
 };
 
+//? Function Update Post
+const updatePost = async (req, res) => {
+  const { userId } = req.params;
+  const { title, category, body } = req.body;
+  console.log(req.file, title, category, body, userId);
+
+  try {
+    const existingUser = await UserModel.findById(userId);
+
+    if (!existingUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const existingPost = await PostModel.findOne({
+      userId: existingUser._id,
+    });
+
+    if (!existingPost) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+
+    const oldPostImage = existingPost.postImage;
+
+    existingPost.title = title || existingPost.title;
+    existingPost.category = category || existingPost.category;
+    existingPost.body = body || existingPost.body;
+
+    if (req.file) {
+      if (oldPostImage) {
+        const oldImagePath = `public/images/${oldPostImage}`;
+
+        fs.unlinkSync(oldImagePath);
+      }
+      existingPost.postImage = req.file.filename;
+    }
+
+    const updatedPost = await existingPost.save();
+    console.log(updatedPost);
+
+    res.status(200).json(updatedPost);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+//? Function Delete Post
+
+const deletePost = async (req, res) => {
+  try {
+    const { postId } = req.params;
+
+    const existingPost = await PostModel.findById(postId);
+
+    if (!existingPost) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+    const deletedPost = await PostModel.findByIdAndDelete(existingPost._id);
+
+    if (!deletedPost) {
+      return res.status(404).json({ error: "Error deleting Post" });
+    }
+
+    res.status(200).json({ message: "Post deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting post:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 module.exports = {
   getAllPost,
+  getAllPostByUser,
   addPost,
   getPostBySlug,
+  updatePost,
+  deletePost,
 };

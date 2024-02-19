@@ -8,7 +8,6 @@ const {
   createStatusToken,
 } = require("../utils/tokenGenerator");
 const fs = require("fs");
-const path = require("path");
 
 //? Function Get User By Id
 const getUserBySlug = async (req, res) => {

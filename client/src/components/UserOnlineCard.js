@@ -9,7 +9,7 @@ export default function UserOnlineCard({
   profileImage,
 }) {
   const apiUrl = process.env.REACT_APP_DOMAIN_API;
-  console.log("catch", profileImage);
+
   return (
     <div>
       <ul className="max-w-md">

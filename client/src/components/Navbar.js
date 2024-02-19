@@ -120,12 +120,12 @@ export default function Navbar() {
                               Update Profile
                             </div>
                           </Link>
-                          <a
-                            href="#"
+                          <Link
+                            to={`/update-post`}
                             className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-blue-200 dark:hover:text-dark transition duration-300 transform hover:scale-100"
                           >
                             My Posts
-                          </a>
+                          </Link>
                           <div
                             onClick={handleClickLogout}
                             className="block px-4 py-2 relative flex items-center cursor-pointer transition duration-300 hover:bg-blue-200 transform hover:scale-100 "

@@ -214,7 +214,7 @@ export default function Forum() {
       }
     }
   };
-  console.log("onglen", onlineUsers);
+
   return (
     <div className="bg-gradient-to-b from-neutral-900 to-neutral-900 shadow">
       <div className="ml-10 mr-10 items-center">

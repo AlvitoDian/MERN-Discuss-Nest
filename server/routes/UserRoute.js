@@ -47,7 +47,7 @@ router.get("/online-users", getOnlineUsers);
 
 //? Update User
 router.put(
-  "/update/:userId",
+  "/update-user/:userId",
   checkAccessToken,
   upload.single("profileImage"),
   updateUser

@@ -7,6 +7,7 @@ import Forum from "./pages/Forum";
 import SinglePost from "./pages/SinglePost";
 import SingleUser from "./pages/SingleUser";
 import UpdateUser from "./pages/UpdateUser";
+import SuntingPost from "./pages/SuntingPost";
 import Home from "./pages/Home";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -24,6 +25,7 @@ function App() {
           <Route path="/forum/post/:slug" element={<SinglePost />} />
           <Route path="/forum/user/:slug" element={<SingleUser />} />
           <Route path="/update-user" element={<UpdateUser />} />
+          <Route path="/update-post" element={<SuntingPost />} />
         </Routes>
         <Footer />
       </SkeletonTheme>

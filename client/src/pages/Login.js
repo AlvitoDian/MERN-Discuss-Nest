@@ -37,7 +37,7 @@ export default function Login() {
                 id="email"
                 name="email"
                 value={email}
-                className="w-full border-gray-300 rounded-md p-2 bg-zinc-800 bg-opacity-90 shadow-lg text-gray-200 focus:bg-zinc-800"
+                className="w-full rounded-md p-2 bg-zinc-800 bg-opacity-90 shadow-lg text-gray-200 focus:bg-zinc-800"
                 placeholder="Enter your email"
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -51,7 +51,7 @@ export default function Login() {
                 id="password"
                 name="password"
                 value={password}
-                className="w-full border-gray-300 rounded-md p-2 bg-zinc-800 bg-opacity-90 shadow-lg text-gray-200"
+                className="w-full rounded-md p-2 bg-zinc-800 bg-opacity-90 shadow-lg text-gray-200"
                 placeholder="Enter Password"
                 onChange={(e) => setPassword(e.target.value)}
               />

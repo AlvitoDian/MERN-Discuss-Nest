@@ -185,7 +185,6 @@ const updatePost = async (req, res) => {
 };
 
 //? Function Delete Post
-
 const deletePost = async (req, res) => {
   try {
     const { postId } = req.params;

@@ -90,22 +90,17 @@ export default function Forum() {
         withCredentials: true,
       });
 
-      /* console.log("User", response); */
-
       const updatedUsers = response.data.map((onlineUsers) => ({
         ...onlineUsers,
       }));
 
       setOnlineUsers(updatedUsers);
-      /*  setPosts(response.data); */
     } catch (error) {
       if (error.response && error.response.status === 401) {
-        // Handle 401 Unauthorized error
         console.error("Unauthorized access. Redirect or show login form.");
-        // For example, you might redirect to a login page or show a login form
-        return; // Stop execution and return from the function
+
+        return;
       } else {
-        // Handle other errors
         console.error("Error fetching user online:", error);
       }
     }
@@ -117,68 +112,16 @@ export default function Forum() {
   }, []);
 
   //? Add Post
-  // const addPost = async (e) => {
-  //   e.preventDefault();
-
-  //   try {
-  //     const currentDate = new Date();
-  //     const response = await axios.post(
-  //       `${apiUrl}/add-post`,
-  //       {
-  //         userId: user._id,
-  //         title,
-  //         category,
-  //         body,
-  //         date: currentDate,
-  //       },
-  //       { withCredentials: true }
-  //     );
-
-  //     navigate("/forum");
-  //     /* console.log("ini reponse : ", response.data); */
-  //     /* setPosts([response.data, ...posts]); */
-
-  //     const updatedPosts = posts.map((post) => ({
-  //       ...post,
-  //       userName: post.userId ? post.userId.name : "Unknown",
-  //     }));
-
-  //     /* console.log(updatedPosts); */
-
-  //     // Add the new post to the beginning of the array
-  //     setPosts([{ ...response.data, userName: user.name }, ...updatedPosts]);
-
-  //     setUserId("");
-  //     setTitle("");
-  //     setCategory("");
-  //     setBody("");
-  //   } catch (error) {
-  //     if (error.response && error.response.data && error.response.data.errors) {
-  //       const validationErrors = error.response.data.errors.map(
-  //         (validationError) => validationError.msg
-  //       );
-
-  //       setErrorMessages(validationErrors);
-  //     } else {
-  //       console.error("Error:", error.message);
-  //     }
-  //   }
-  // };
-
   const addPost = async (e) => {
     e.preventDefault();
 
     try {
-      const currentDate = new Date();
-
-      // Create a FormData object
       const formData = new FormData();
       formData.append("userId", user._id);
       formData.append("title", title);
       formData.append("category", category);
       formData.append("body", body);
 
-      // Append the postImage if it exists
       if (postImage) {
         formData.append("postImage", postImage);
       }
@@ -192,10 +135,8 @@ export default function Forum() {
 
       navigate("/forum");
 
-      // Update the posts state with the new post
       setPosts([{ ...response.data, userName: user.name }, ...posts]);
 
-      // Clear the form fields
       setUserId("");
       setTitle("");
       setCategory("");
@@ -215,27 +156,127 @@ export default function Forum() {
     }
   };
 
+  //? Search Filter
+  const searchFilter = (e) => {
+    const searchFilter = e.target.value.toLowerCase();
+
+    setIsLoading(true); // Set isLoading to true when filtering
+
+    if (searchFilter.trim() === "") {
+      getPosts();
+    } else {
+      const filteredPosts = posts.filter((post) => {
+        return (
+          post.title.toLowerCase().includes(searchFilter) ||
+          post.userName.toLowerCase().includes(searchFilter) ||
+          post.body.toLowerCase().includes(searchFilter)
+        );
+      });
+
+      setPosts(filteredPosts);
+
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 500);
+    }
+  };
+
+  //? Category Filter
+  const categoryFilter = () => {
+    const techCheckbox = document.getElementById("tech");
+    const designCheckbox = document.getElementById("design");
+    const entertainmentCheckbox = document.getElementById("entertainments");
+
+    const techChecked = techCheckbox.checked;
+    const designChecked = designCheckbox.checked;
+    const entertainmentChecked = entertainmentCheckbox.checked;
+
+    setIsLoading(true); // Set isLoading to true when filtering
+
+    if (!techChecked && !designChecked && !entertainmentChecked) {
+      getPosts();
+    } else {
+      const filteredPosts = posts.filter((post) => {
+        const postCategories = post.category.toLowerCase();
+        console.log(postCategories);
+
+        return (
+          (techChecked && postCategories.includes("tech")) ||
+          (designChecked && postCategories.includes("design")) ||
+          (entertainmentChecked && postCategories.includes("entertainment"))
+        );
+      });
+
+      setPosts(filteredPosts);
+
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 500);
+    }
+  };
+
   return (
     <div className="bg-gradient-to-b from-neutral-900 to-neutral-900 shadow">
       <div className="ml-10 mr-10 items-center">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 pt-28 pb-9">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-10 pt-28 pb-9">
           <div>
-            <p className="mb-3 text-gray-200 font-medium">Available Topics</p>
-            <p>
-              <span className="font-semibold text-emerald-400"># Tech</span>
-            </p>
-            <p>
-              <span className="font-semibold text-emerald-400">
-                # Entertainment
-              </span>
-            </p>
-            <p>
-              <span className="font-semibold text-emerald-400">
-                # Programming
-              </span>
-            </p>
+            <p className="mb-3 text-gray-200 font-medium">Filter Topics</p>
+            <>
+              <ul className="w-48 text-sm font-medium bg-zinc-700 border border-emerald-300 rounded-lg">
+                <li className="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600">
+                  <div className="flex items-center ps-3">
+                    <input
+                      id="tech"
+                      type="checkbox"
+                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                      onChange={categoryFilter}
+                    />
+                    <label
+                      htmlFor="tech"
+                      className="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                    >
+                      Tech
+                    </label>
+                  </div>
+                </li>
+                <li className="w-full border-b border-gray-200 rounded-t-lg dark:border-gray-600">
+                  <div className="flex items-center ps-3">
+                    <input
+                      id="design"
+                      type="checkbox"
+                      defaultValue=""
+                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                      onChange={categoryFilter}
+                    />
+                    <label
+                      htmlFor="design"
+                      className="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                    >
+                      Design
+                    </label>
+                  </div>
+                </li>
+                <li className="w-full border-gray-200 rounded-t-lg dark:border-gray-600">
+                  <div className="flex items-center ps-3">
+                    <input
+                      id="entertainments"
+                      type="checkbox"
+                      defaultValue=""
+                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
+                      onChange={categoryFilter}
+                    />
+                    <label
+                      htmlFor="entertainments"
+                      className="w-full py-3 ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"
+                    >
+                      Entertainment
+                    </label>
+                  </div>
+                </li>
+              </ul>
+            </>
           </div>
-          <div>
+          <div className="col-span-3">
             {!user && (
               <div className="max-w-7xl p-6 bg-emerald-400 rounded-lg shadow-lg shadow-emerald-200/50 mb-5">
                 <label
@@ -339,15 +380,7 @@ export default function Forum() {
                       )}
                     </div>
                   </div>
-                  {/* <textarea
-                    id="message"
-                    onChange={(e) => setBody(e.target.value)}
-                    value={body}
-                    rows="4"
-                    className="block p-2.5 w-full block p-2.5 w-full text-sm text-gray-300 bg-zinc-700 rounded-lg border border-gray-300 focus:ring-zinc-500 focus:border-zinc-500 dark:bg-zinc-700 dark:zinc-zinc-300 dark:placeholder-gray-400 dark:text-gray-300 dark:focus:ring-zinc-500 dark:focus:border-zinc-500"
-                    placeholder="Write your thoughts here..."
-                  ></textarea> */}
-                  <button className="mt-5 text-white bg-gradient-to-r from-neutral-500 to-neutral-700 shadow-md hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2">
+                  <button className="text-white bg-gradient-to-r from-neutral-500 to-neutral-700 shadow-md hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
                     Send
                   </button>
                   {errorMessages.length > 0 && (
@@ -363,6 +396,41 @@ export default function Forum() {
                 </form>
               </div>
             )}
+            {/* //? Category Button */}
+            <div className="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between pb-4">
+              {/* //? Search */}
+              <div>
+                <label htmlFor="table-search" className="sr-only">
+                  Search
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 rtl:inset-r-0 rtl:right-0 flex items-center ps-3 pointer-events-none">
+                    <svg
+                      className="w-5 h-5 text-gray-500 dark:text-gray-400"
+                      aria-hidden="true"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    id="table-search"
+                    className="block p-2 ps-10 text-sm text-gray-200 rounded-lg w-80 bg-zinc-700 focus:ring-blue-500 focus:border-blue-500 shadow-lg"
+                    placeholder="Search for post"
+                    onChange={searchFilter}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* //? Category Button End */}
             {isLoading && <SkeletonPostCard count={8} />}
             {!isLoading &&
               currentPosts.map((post, index) => (

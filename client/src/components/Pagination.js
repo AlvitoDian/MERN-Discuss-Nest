@@ -20,7 +20,7 @@ export default function Pagination({
           <li>
             <a
               href="#"
-              className="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-white border border-e-0 border-gray-300 rounded-s-lg hover:bg-gray-100 hover:text-gray-700"
+              className="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 bg-zinc-700 border border-e-0 border-emerald-300 rounded-s-lg hover:bg-zinc-900 hover:text-gray-700 transition duration-300 ease-in-out"
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
             >
@@ -47,10 +47,10 @@ export default function Pagination({
             <li key={index}>
               <a
                 href="#"
-                className={`flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 ${
+                className={`flex items-center justify-center px-3 h-8 leading-tight text-gray-200 bg-zinc-700 border border-emerald-300 ${
                   currentPage === index + 1
-                    ? "bg-gray-100 text-gray-700"
-                    : "hover:bg-gray-100 hover:text-gray-700"
+                    ? "bg-zinc-700 text-gray-200 hover:bg-zinc-900 transition duration-300 ease-in-out"
+                    : "hover:bg-zinc-900 hover:text-gray-200 transition duration-300 ease-in-out"
                 }`}
                 onClick={() => handlePageChange(index + 1)}
               >
@@ -62,7 +62,7 @@ export default function Pagination({
           <li>
             <a
               href="#"
-              className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-white border border-gray-300 rounded-e-lg hover:bg-gray-100 hover:text-gray-700"
+              className="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 bg-zinc-700 border border-emerald-300 rounded-e-lg hover:bg-zinc-900 hover:text-gray-700 transition duration-300 ease-in-out"
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
             >
